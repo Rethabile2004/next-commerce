@@ -1,15 +1,14 @@
-import React from 'react'
-import { FaBasketShopping } from "react-icons/fa6";
-import { Button } from '../ui/button';
 import Link from 'next/link';
-const Logo = () => {
-    return (
-        <Button asChild size='icon'>
-            <Link href='/'>
-                <FaBasketShopping className='w-7 h-7' />
-            </Link>
-        </Button>
-    )
-}
+import { Button } from '../ui/button';
+import { VscCode } from 'react-icons/vsc';
 
-export default Logo
+function Logo() {
+  return (
+    <Button size='icon' asChild>
+      <Link href='/'>
+        <VscCode className='w-6 h-6' />
+      </Link>
+    </Button>
+  );
+}
+export default Logo;

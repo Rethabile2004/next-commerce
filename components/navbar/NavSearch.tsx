@@ -1,8 +1,9 @@
 import React from 'react'
+import { Input } from '../ui/input'
 
 const NavSearch = () => {
   return (
-    <div>NavSearch</div>
+    <Input placeholder='search' type='search' className='max-w-xs dark:bg-muted' />
   )
 }
 
