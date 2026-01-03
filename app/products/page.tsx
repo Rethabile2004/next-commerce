@@ -7,8 +7,10 @@ async function ProductsPage({
 }: {
   searchParams: { layout?: string; search?: string };
 }) {
-  const layout = searchParams.layout || 'grid';
-  const search = searchParams.search || '';
+  const value= await searchParams
+  
+  const layout = value.layout || 'grid';
+  const search = value.search || '';
   return (
     <>
       <ProductsContainer layout={layout} search={search} />

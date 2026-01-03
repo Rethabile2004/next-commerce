@@ -16,7 +16,7 @@ const Navbar = () => {
         </Suspense>
         <div className="flex gap-4 items-center">
           <CartButton />
-          <ModeToggle />
+          {/* <ModeToggle /> */}
           <LinkDropdown />
         </div>
       </Container>

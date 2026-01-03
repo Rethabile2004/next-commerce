@@ -5,8 +5,11 @@ import { formatCurrency } from '@/utils/format';
 import FavoriteToggleButton from '@/components/product/FavoriteToggleButton'; 
 import AddToCart from '@/components/single-product/AddToCart';
 import ProductRating from '@/components/single-product/ProductRating';
+
 async function SingleProductPage({ params }: { params: { id: string } }) {
-  const product = await fetchSingleProduct(params.id);
+   const {id}=await params
+  
+  const product = await fetchSingleProduct(id);
   const { name, image, company, description, price } = product;
   const dollarsAmount = formatCurrency(price);
   return (

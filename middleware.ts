@@ -1,6 +1,6 @@
 // middleware.ts
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
-import type { NextRequest } from 'next/server';   // ← this is what you missed
+import { NextResponse, type NextRequest } from 'next/server';   // ← this is what you missed
 
 // Public routes — add sign-in/up so people can actually log in lol
 const isPublicRoute = createRouteMatcher([
@@ -11,7 +11,18 @@ const isPublicRoute = createRouteMatcher([
   '/sign-up(.*)',
 ]);
 
+const isAdminRoute = createRouteMatcher([
+  '/admin(.*)'
+])
+
 export default clerkMiddleware(async (auth, req: NextRequest) => {
+  // console.log(au);
+  const uid = (await auth()).userId
+  // console.log(uid);
+  
+  if (isAdminRoute(req) && !(uid === process.env.ADMIN_USERID)) {
+    return NextResponse.redirect(new URL('/', req.url))
+  }
   // Everything not public → protect it
   if (!isPublicRoute(req)) {
     // Modern & clean way (recommended)
