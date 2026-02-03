@@ -1,5 +1,4 @@
 import { createClient } from '@supabase/supabase-js'
-import db from '@/utils/db'
 
 const bucket = 'name-bucket'
 
@@ -16,7 +15,7 @@ export const uploadImage = async (image: File) => {
     .from(bucket)
     .upload(newName, image, {
       cacheControl: '3600',
-    })
+    });
 
   if (!data) {
     throw new Error('Image upload failed')

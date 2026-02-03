@@ -1,8 +1,12 @@
+// programmer: rethabile eric siase
+// github.com/rethabile2004
+
+// this component is used to create a product
 import { SubmitButton } from "@/components/form/Buttons";
 import CheckboxInput from "@/components/form/CheckBoxInput";
 import FormContainer from "@/components/form/FormContainer";
 import FormInput from "@/components/form/FormInput";
-import ImageInput from "@/components/form/ImageInputContainer";
+import ImageInput from "@/components/form/ImageInput";
 import PriceInput from "@/components/form/PriceInput";
 import TextAreaInput from "@/components/form/TextAreaInput";
 import { createProductAction } from "@/utils/actions";

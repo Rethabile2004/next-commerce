@@ -1,39 +1,33 @@
-// middleware.ts
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
-import { NextResponse, type NextRequest } from 'next/server';   // ← this is what you missed
+// programmer: rethabile eric siase
+// github.com/rethabile2004
 
-// Public routes — add sign-in/up so people can actually log in lol
+// middleware :)
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { NextResponse, type NextRequest } from 'next/server'; 
+
 const isPublicRoute = createRouteMatcher([
   '/',
   '/products(.*)',
   '/about',
-  '/sign-in(.*)',
-  '/sign-up(.*)',
-]);
+]);// defines all the routes a user who has not logged in can access
 
 const isAdminRoute = createRouteMatcher([
   '/admin(.*)'
-])
+]); // defines the admin routes
 
 export default clerkMiddleware(async (auth, req: NextRequest) => {
-  // console.log(au);
   const uid = (await auth()).userId
-  // console.log(uid);
   
   if (isAdminRoute(req) && !(uid === process.env.ADMIN_USERID)) {
-    return NextResponse.redirect(new URL('/', req.url))
+    return NextResponse.redirect(new URL('/', req.url)) //redirect the user to the home page if the user
+    // is not an admin
   }
-  // Everything not public → protect it
+  
   if (!isPublicRoute(req)) {
-    // Modern & clean way (recommended)
-    await auth.protect();   // redirects to sign-in automatically + preserves return URL
+    await auth.protect(); // redirect the user to a login screen
   }
-
-  // You can return NextResponse.next() explicitly if you want,
-  // but usually not needed — middleware just continues by default
 });
 
-// Recommended matcher in 2025/2026 — don't touch unless you have a very special case
 export const config = {
   matcher: [
     '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',

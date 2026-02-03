@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import HeroCarousel from './HeroCarousel';
+import { FaGithub } from 'react-icons/fa';
 
 function Hero() {
   return (
@@ -14,6 +15,9 @@ function Hero() {
         </p>
         <Button asChild size='lg' className='mt-10'>
           <Link href='/products'>Our Products</Link>
+        </Button>
+        <Button asChild size='lg' variant='outline' className='ml-5 mt-10'>          
+          <Link href='https://github.com/Rethabile2004'><FaGithub width={10} height={10}/>Github</Link>
         </Button>
       </div>
       <HeroCarousel />

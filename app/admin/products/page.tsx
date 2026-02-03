@@ -1,3 +1,7 @@
+// programmer: rethabile eric siase
+// github.com/rethabile2004
+
+// this component is used to render all the products that the admin has added
 import Link from "next/link";
 import EmptyList from "@/components/global/EmptyList";
 import { formatCurrency } from "@/utils/format";

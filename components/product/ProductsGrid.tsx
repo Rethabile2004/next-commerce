@@ -12,7 +12,6 @@ function ProductsGrid({ products }: { products: Product[] }) {
         const { name, price, image } = product;
         const productId = product.id;
         const dollarsAmount = formatCurrency(price);
-        // console.log(productId);
         
         return (
           <article key={productId} className='group relative'>

@@ -7,6 +7,7 @@ import UserIcon from "./UserIcon";
 import { SignedIn, SignedOut, SignInButton, SignUpButton } from "@clerk/nextjs";
 import SignoutLink from "./SignoutLink";
 import { auth } from "@clerk/nextjs/server";
+import { Card } from "../ui/card";
 
 const LinkDropdown = async () => {
   const user = await auth()
@@ -20,7 +21,10 @@ const LinkDropdown = async () => {
           <UserIcon />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align='start' sideOffset={10} className="w-42">
+      <DropdownMenuContent align='end'
+        sideOffset={12}
+        className="w-56 rounded-xl border bg-background p-2 shadow-xl">
+
         <SignedOut>
           <DropdownMenuItem>
             <SignInButton mode='modal'>

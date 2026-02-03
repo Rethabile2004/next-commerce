@@ -1,4 +1,8 @@
 'use client';
+// programmer: rethabile eric siase
+// github.com/rethabile2004
+
+// this component returns a sidebar, it's used inside the admin layout
 import { adminLinks } from '@/utils/links';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';

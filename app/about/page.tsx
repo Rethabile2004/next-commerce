@@ -1,3 +1,6 @@
+// programmer: rethabile eric siase
+// github.com/rethabile2004
+
 function AboutPage() {
   return (
     <section>
@@ -16,4 +19,4 @@ function AboutPage() {
     </section>
   );
 }
-export default AboutPage;
+export default AboutPage; // about us page  

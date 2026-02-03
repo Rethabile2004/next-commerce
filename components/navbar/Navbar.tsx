@@ -8,7 +8,7 @@ import { Suspense } from 'react';
 
 const Navbar = () => {
   return (
-    <nav className="border-b">
+    <nav className="border-b relative z-50">
       <Container className="flex flex-col sm:flex-row sm:justify-between sm:items-center flex-wrap py-8 gap-4">
         <Logo />
         <Suspense>
@@ -16,7 +16,7 @@ const Navbar = () => {
         </Suspense>
         <div className="flex gap-4 items-center">
           <CartButton />
-          {/* <ModeToggle /> */}
+          <ModeToggle />
           <LinkDropdown />
         </div>
       </Container>

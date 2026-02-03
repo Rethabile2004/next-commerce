@@ -1,3 +1,7 @@
+// programmer: rethabile eric siase
+// github.com/rethabile2004
+
+// Nested admin layout
 import { Separator } from '@/components/ui/separator'
 import React from 'react'
 import Sidebar from '@/app/admin/Sidebar'

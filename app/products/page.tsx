@@ -1,5 +1,7 @@
-// import ProductsContainer from '@/components/products/ProductsContainer';
+// programmer: rethabile eric siase
+// github.com/rethabile2004
 
+// this component renders all the products that are available in our database
 import ProductsContainer from "@/components/product/ProductsContainer";
 
 async function ProductsPage({
