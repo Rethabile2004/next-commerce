@@ -1,12 +1,13 @@
 'use client';
 import axios from 'axios';
-import { useSearchParams } from 'next/navigation';
+import { redirect, useSearchParams } from 'next/navigation';
 import React, { useCallback, Suspense } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import {
   EmbeddedCheckoutProvider,
   EmbeddedCheckout,
 } from '@stripe/react-stripe-js';
+import { toast } from 'sonner';
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string
@@ -23,9 +24,16 @@ function CheckoutForm() {
       cartId: cartId,
     });
     return response.data.clientSecret;
-  }, [orderId, cartId]); 
+  }, [orderId, cartId]);
 
-  const options = { fetchClientSecret };
+  const options = {
+    fetchClientSecret,
+    onComplete: () => {
+      toast.success('Order created successfully.')
+      redirect('/orders');
+    }
+  };
+
 
   return (
     <div id='checkout'>
