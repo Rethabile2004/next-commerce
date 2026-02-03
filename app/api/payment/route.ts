@@ -11,28 +11,22 @@ export const POST = async (req: NextRequest) => {
   const { orderId, cartId } = await req.json();
 
   const order = await db.order.findUnique({
-    where: {
-      id: orderId,
-    },
+    where: { id: orderId },
   });
+  
   const cart = await db.cart.findUnique({
-    where: {
-      id: cartId,
-    },
+    where: { id: cartId },
     include: {
       cartItems: {
-        include: {
-          product: true,
-        },
+        include: { product: true },
       },
     },
   });
+
   if (!order || !cart) {
-    return Response.json(null, {
-      status: 404,
-      statusText: 'Not Found',
-    });
+    return Response.json(null, { status: 404, statusText: 'Not Found' });
   }
+
   const line_items = cart.cartItems.map((cartItem) => {
     return {
       quantity: cartItem.amount,
@@ -42,10 +36,11 @@ export const POST = async (req: NextRequest) => {
           name: cartItem.product.name,
           images: [cartItem.product.image],
         },
-        unit_amount: cartItem.product.price * 100, // price in cents
+        unit_amount: cartItem.product.price * 100,
       },
     };
   });
+
   try {
     const session = await stripe.checkout.sessions.create({
       ui_mode: 'embedded',
@@ -58,11 +53,7 @@ export const POST = async (req: NextRequest) => {
     return Response.json({ clientSecret: session.client_secret });
   } catch (error) {
     console.log(error);
-
-    return Response.json(null, {
-      status: 500,
-      statusText: 'Internal Server Error',
-    });
+    return Response.json(null, { status: 500, statusText: 'Internal Server Error' });
   }
 };
 
@@ -72,31 +63,28 @@ export const GET = async (req: NextRequest) => {
 
   try {
     const session = await stripe.checkout.sessions.retrieve(session_id);
-    // console.log(session);
 
     const orderId = session.metadata?.orderId;
     const cartId = session.metadata?.cartId;
+
     if (session.status === 'complete') {
       await db.order.update({
-        where: {
-          id: orderId,
-        },
-        data: {
-          isPaid: true,
-        },
+        where: { id: orderId },
+        data: { isPaid: true },
       });
+
       await db.cart.delete({
-        where: {
-          id: cartId,
-        },
+        where: { id: cartId },
       });
+      
+      redirect(`/success?session_id=${session_id}`);
     }
   } catch (err) {
     console.log(err);
-    return Response.json(null, {
-      status: 500,
-      statusText: 'Internal Server Error',
-    });
+    if ((err as any).digest?.includes('NEXT_REDIRECT')) throw err;
+    
+    return Response.json(null, { status: 500, statusText: 'Internal Server Error' });
   }
+  
   redirect('/orders');
 };

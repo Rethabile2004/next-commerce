@@ -67,7 +67,7 @@ export const createProductAction = async (prev: any, formData: FormData): Promis
     const validatedFile = validateWithZodSchema(imageSchema, { image: image })
 
     const imageUrl = await uploadImage(validatedFile.image)
-    
+
     await db.product.create({
       data: {
         ...validatedFields,
@@ -83,8 +83,8 @@ export const createProductAction = async (prev: any, formData: FormData): Promis
 
 const getAdminUser = async () => {
   const user = await getAuthUser();
-  if (user.id !== process.env.ADMIN_USER_ID) redirect('/');
-  return user;
+  if (user.id === process.env.ADMIN_USER_ID) return user;
+  redirect('/');
 };
 
 export const fetchAdminProducts = async () => {
@@ -348,9 +348,9 @@ export const findExistingReview = async (userId: string, productId: string) => {
 };
 
 export const fetchCartItems = async () => {
-  const user =auth()
+  const user = auth()
   const userId = (await user).userId
-  if(!userId){
+  if (!userId) {
     return 0
   }
   const cart = await db.cart.findMany({
