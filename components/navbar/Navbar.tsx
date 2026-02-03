@@ -21,7 +21,9 @@ const Navbar = () => {
 
         <div className="w-full sm:max-w-xs md:max-w-md">
           <Suspense fallback={<div className="h-10 w-full bg-muted animate-pulse rounded" />}>
+          <div className="hidden md:block">
             <NavSearch />
+          </div>
           </Suspense>
         </div>
 
