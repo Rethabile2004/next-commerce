@@ -10,20 +10,20 @@ const Navbar = () => {
   return (
     <nav className="border-b relative z-50 bg-background">
       <Container className="flex flex-col gap-4 py-4 sm:flex-row sm:justify-between sm:items-center sm:py-8">
+
         <div className="flex justify-between items-center w-full sm:w-auto">
           <Logo />
 
           <div className="flex gap-2 items-center sm:hidden">
             <CartButton />
+            <ModeToggle />
             <LinkDropdown />
           </div>
         </div>
 
-        <div className="w-full sm:max-w-xs md:max-w-md">
-          <Suspense fallback={<div className="h-10 w-full bg-muted animate-pulse rounded" />}>
-          <div className="hidden md:block">
+        <div className="w-full sm:max-w-xs md:max-w-md lg:max-w-lg">
+          <Suspense fallback={<div className="h-10 w-full bg-muted animate-pulse rounded-md" />}>
             <NavSearch />
-          </div>
           </Suspense>
         </div>
 
@@ -33,9 +33,6 @@ const Navbar = () => {
           <LinkDropdown />
         </div>
 
-        <div className="sm:hidden absolute right-4 top-4">
-          <ModeToggle />
-        </div>
       </Container>
     </nav>
   )
