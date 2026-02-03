@@ -1,11 +1,7 @@
 'use client';
-// programmer: rethabile eric siase
-// github.com/rethabile2004
-
-// this component allows the user to checkout their cart items and allows the user to pay for their products
 import axios from 'axios';
 import { useSearchParams } from 'next/navigation';
-import React, { useCallback } from 'react';
+import React, { useCallback, Suspense } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import {
   EmbeddedCheckoutProvider,
@@ -16,20 +12,18 @@ const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string
 );
 
-export default function CheckoutPage() {
+function CheckoutForm() {
   const searchParams = useSearchParams();
-
   const orderId = searchParams.get('orderId');
   const cartId = searchParams.get('cartId');
 
   const fetchClientSecret = useCallback(async () => {
-    // Create a Checkout Session
     const response = await axios.post('/api/payment', {
       orderId: orderId,
       cartId: cartId,
     });
     return response.data.clientSecret;
-  }, []);
+  }, [orderId, cartId]); 
 
   const options = { fetchClientSecret };
 
@@ -39,5 +33,13 @@ export default function CheckoutPage() {
         <EmbeddedCheckout />
       </EmbeddedCheckoutProvider>
     </div>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={<div>Loading checkout...</div>}>
+      <CheckoutForm />
+    </Suspense>
   );
 }
