@@ -76,7 +76,7 @@ function SuccessContent() {
           </p>
         </div>
 
-        \        <div className="bg-muted/50 border rounded-xl p-6 space-y-4">
+         <div className="bg-muted/50 border rounded-xl p-6 space-y-4">
           <div className="flex items-start gap-3 text-left">
             <Package className="h-6 w-6 text-primary mt-0.5 shrink-0" />
             <p className="text-base leading-relaxed">
