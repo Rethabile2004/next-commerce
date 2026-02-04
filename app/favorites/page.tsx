@@ -5,12 +5,18 @@
 import { fetchUserFavoritesAction } from '@/utils/actions';
 import SectionTitle from '@/components/global/SectionTitle';
 import ProductsGrid from '@/components/product/ProductsGrid';
+import EmptyState from '@/components/global/EmptyState';
 
 async function FavoritesPage() {
   const favorites = await fetchUserFavoritesAction();
   if (favorites.length === 0)
-    return <SectionTitle text='You have no favorites yet.' />;
-
+    return <EmptyState
+      type="favorites"
+      title="Still no favorites?"
+      description="Heart some products to see them here"
+      actionLabel="Start Browsing"
+      actionHref="/products"
+    />
   return (
     <div>
       <SectionTitle text='Favorites' />

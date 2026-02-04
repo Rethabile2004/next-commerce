@@ -4,6 +4,7 @@
 // this component renders the users cart and allows the user to place their oders and view the cart total
 import CartItemsList from '@/components/cart/CartItemsList';
 import CartTotals from '@/components/cart/CartTotals';
+import EmptyState from '@/components/global/EmptyState';
 import SectionTitle from '@/components/global/SectionTitle';
 import { fetchOrCreateCart, updateCart } from '@/utils/actions';
 import { auth } from '@clerk/nextjs/server';
@@ -16,7 +17,11 @@ async function CartPage() {
   const { cartItems, currentCart } = await updateCart(previousCart);
 
   if (cartItems.length === 0) {
-    return <SectionTitle text='Empty cart' />;
+    return <EmptyState 
+      type="cart"
+      actionLabel="Shop Now"
+      actionHref="/products"
+    />
   }
   return (
     <>

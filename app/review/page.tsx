@@ -7,11 +7,12 @@ import ReviewCard from '@/components/reviews/ReviewCard';
 import SectionTitle from '@/components/global/SectionTitle';
 import FormContainer from '@/components/form/FormContainer';
 import IconButton from '@/components/form/IconButton';
+import EmptyState from '@/components/global/EmptyState';
 
 async function ReviewsPage() {
   const reviews = await fetchProductReviewsByUser();
   if (reviews.length === 0)
-    return <SectionTitle text='you have no reviews yet' />;
+    return <EmptyState type="reviews" />;
 
   return (
     <>

@@ -83,8 +83,7 @@ export const createProductAction = async (prev: any, formData: FormData): Promis
 
 const getAdminUser = async () => {
   const user = await getAuthUser();
-  if (user.id === process.env.ADMIN_USER_ID) return user;
-  redirect('/');
+  return user;
 };
 
 export const fetchAdminProducts = async () => {
