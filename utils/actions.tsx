@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import { imageSchema, productShema, reviewSchema, validateWithZodSchema } from './shema'
 import { deleteImage, uploadImage } from './superbase'
 import { revalidatePath } from 'next/cache'
-import { auth, currentUser } from '@clerk/nextjs/server'
+import { auth, clerkClient, currentUser } from '@clerk/nextjs/server'
 import { Cart, Product, Review } from '@prisma/client';
 
 export const fetchFeaturedProducts = async () => {
@@ -619,3 +619,23 @@ export const createOrderAction = async (prevState: any, formData: FormData) => {
   }
   redirect(`/checkout?orderId=${orderId}&cartId=${cartId}`);
 };
+
+export async function fetchClerkUsers() {
+  const client = await clerkClient();
+
+  // Fetch up to 100 users, ordered by newest first
+  const { data } = await client.users.getUserList({
+    limit: 100,
+    orderBy: "-created_at",
+  });
+
+  return data.map((user) => ({
+    id: user.id,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.emailAddresses[0]?.emailAddress,
+    imageUrl: user.imageUrl,
+    createdAt: user.createdAt,
+    lastSignIn: user.lastSignInAt,
+  }));
+}
