@@ -9,12 +9,26 @@ import SectionTitle from '@/components/global/SectionTitle';
 import { fetchOrCreateCart, updateCart } from '@/utils/actions';
 import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
+import type { CartItemWithProduct } from '@/utils/types';
+import type { Cart } from '@prisma/client';
 
 async function CartPage() {
   const { userId } = await auth();
   if (!userId) redirect('/');
-  const previousCart = await fetchOrCreateCart({ userId });
-  const { cartItems, currentCart } = await updateCart(previousCart);
+  let cartItems: CartItemWithProduct[];
+  let currentCart: Cart;
+  try {
+    const previousCart = await fetchOrCreateCart({ userId });
+    ({ cartItems, currentCart } = await updateCart(previousCart));
+  } catch {
+    return <EmptyState
+      type="cart"
+      title="Cart unavailable while the store is offline"
+      description="Your cart is safely unchanged. Please try again when the database is back online."
+      actionLabel="Browse Products"
+      actionHref="/products"
+    />;
+  }
 
   if (cartItems.length === 0) {
     return <EmptyState 

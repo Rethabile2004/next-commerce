@@ -7,38 +7,47 @@ import { deleteImage, uploadImage } from './superbase'
 import { revalidatePath } from 'next/cache'
 import { auth, clerkClient, currentUser } from '@clerk/nextjs/server'
 import { Cart, Product, Review } from '@prisma/client';
+import {
+  fallbackProducts,
+  findFallbackProduct,
+  logDatabaseFallback,
+  offlineMessage,
+} from './fallback';
 
 export const fetchFeaturedProducts = async () => {
-  const products = await db.product.findMany({
-    where: {
-      featured: true
-    }
-  })
-  return products
+  try {
+    return await db.product.findMany({ where: { featured: true } });
+  } catch (error) {
+    logDatabaseFallback('fetching featured products', error);
+    return fallbackProducts.filter((product) => product.featured);
+  }
 } // used to fetch only featured products
 
 export const fetchAllProducts = async ({ search = '' }: { search: string }) => {
-  return db.product.findMany({
-    where: {
-      OR: [
-        { name: { contains: search, mode: 'insensitive' } },
-        { company: { contains: search, mode: 'insensitive' } },
-      ],
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-  });
+  try {
+    return await db.product.findMany({
+      where: { OR: [{ name: { contains: search, mode: 'insensitive' } }, { company: { contains: search, mode: 'insensitive' } }] },
+      orderBy: { createdAt: 'desc' },
+    });
+  } catch (error) {
+    logDatabaseFallback('fetching products', error);
+    const query = search.trim().toLowerCase();
+    return fallbackProducts.filter((product) =>
+      !query || product.name.toLowerCase().includes(query) || product.company.toLowerCase().includes(query)
+    );
+  }
 };
 
 
 export const fetchSingleProduct = async (productId: string): Promise<Product> => {
   if (!productId) redirect('/')
-  const product = await db.product.findUnique({
-    where: {
-      id: productId,
-    },
-  });
+  let product: Product | null;
+  try {
+    product = await db.product.findUnique({ where: { id: productId } });
+  } catch (error) {
+    logDatabaseFallback('fetching a product', error);
+    product = findFallbackProduct(productId);
+  }
   if (!product) {
     redirect('/products');
   }
@@ -54,6 +63,12 @@ const getAuthUser = async () => {
 };
 
 const renderError = (error: unknown): { message: string } => {
+  if (
+    error instanceof Error &&
+    (/P1001|P1002|P1017|Can't reach database server|connection/i.test(error.message))
+  ) {
+    return { message: offlineMessage };
+  }
   return { message: error instanceof Error ? error.message : 'there was an error' }
 }
 
@@ -87,11 +102,12 @@ const getAdminUser = async () => {
 };
 
 export const fetchAdminProducts = async () => {
-  return db.product.findMany({
-    orderBy: {
-      createdAt: 'desc'
-    }
-  })
+  try {
+    return await db.product.findMany({ orderBy: { createdAt: 'desc' } });
+  } catch (error) {
+    logDatabaseFallback('fetching admin products', error);
+    return fallbackProducts;
+  }
 }
 
 export const deleteProductAction = async (prevState: string): Promise<{ message: string }> => {
@@ -114,11 +130,13 @@ export const deleteProductAction = async (prevState: string): Promise<{ message:
 
 export const fetchAdminProductDetails = async (productId: string) => {
   // await fetchAdminUser()////////////////
-  const product = await db.product.findUnique({
-    where: {
-      id: productId
-    }
-  });
+  let product: Product | null;
+  try {
+    product = await db.product.findUnique({ where: { id: productId } });
+  } catch (error) {
+    logDatabaseFallback('fetching an admin product', error);
+    product = findFallbackProduct(productId);
+  }
   if (!product) {
     redirect('/admin/product')
   }
@@ -189,17 +207,13 @@ export const updateProductAction = async (prevState: any, formData: FormData) =>
 
 export async function fetchFavoriteId({ productId }: { productId: string }) {
   const user = await getAuthUser();
-  const favorite = await db.favorites.findMany({
-    where: {
-      productId,
-      clerkId: user.id
-    },
-    select: {
-      id: true,
-    }
-  })
-
-  return favorite[0]?.id || null
+  try {
+    const favorite = await db.favorites.findMany({ where: { productId, clerkId: user.id }, select: { id: true } });
+    return favorite[0]?.id || null;
+  } catch (error) {
+    logDatabaseFallback('fetching favorites', error);
+    return null;
+  }
 }
 
 export const toggleFavoriteAction = async (prevState: {
@@ -232,14 +246,12 @@ export const toggleFavoriteAction = async (prevState: {
 };
 export const fetchUserFavoritesAction = async () => {
   const user = await getAuthUser()
-  return db.favorites.findMany({
-    where: {
-      clerkId: user.id
-    }
-    , include: {
-      product: true
-    }
-  })
+  try {
+    return await db.favorites.findMany({ where: { clerkId: user.id }, include: { product: true } });
+  } catch (error) {
+    logDatabaseFallback('fetching user favorites', error);
+    return [];
+  }
 }
 
 export const createReviewAction = async (
@@ -265,19 +277,17 @@ export const createReviewAction = async (
   }
 };
 export const fetchProductReviews = async (productId: string): Promise<Review[]> => {
-  const reviews = await db.review.findMany({
-    where: {
-      productId,
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-  });
-  return reviews;
+  try {
+    return await db.review.findMany({ where: { productId }, orderBy: { createdAt: 'desc' } });
+  } catch (error) {
+    logDatabaseFallback('fetching product reviews', error);
+    return [];
+  }
 };
 
 export const fetchProductReviewsByUser = async () => {
   const user = await getAuthUser();
+  try {
   const reviews = await db.review.findMany({
     where: {
       clerkId: user.id,
@@ -295,6 +305,10 @@ export const fetchProductReviewsByUser = async () => {
     },
   });
   return reviews;
+  } catch (error) {
+    logDatabaseFallback('fetching user reviews', error);
+    return [];
+  }
 };
 
 export const deleteReviewAction = async (prevState: { reviewId: string }) => {
@@ -317,6 +331,7 @@ export const deleteReviewAction = async (prevState: { reviewId: string }) => {
 };
 
 export const fetchProductRating = async (productId: string) => {
+  try {
   const result = await db.review.groupBy({
     by: ['productId'],
     _avg: {
@@ -335,15 +350,19 @@ export const fetchProductRating = async (productId: string) => {
     rating: result[0]?._avg.rating?.toFixed(1) ?? 0,
     count: result[0]?._count.rating ?? 0,
   };
+  } catch (error) {
+    logDatabaseFallback('fetching product rating', error);
+    return { rating: 0, count: 0 };
+  }
 };
 
 export const findExistingReview = async (userId: string, productId: string) => {
-  return db.review.findFirst({
-    where: {
-      clerkId: userId,
-      productId,
-    },
-  });
+  try {
+    return await db.review.findFirst({ where: { clerkId: userId, productId } });
+  } catch (error) {
+    logDatabaseFallback('checking for an existing review', error);
+    return null;
+  }
 };
 
 export const fetchCartItems = async () => {
@@ -352,6 +371,7 @@ export const fetchCartItems = async () => {
   if (!userId) {
     return 0
   }
+  try {
   const cart = await db.cart.findMany({
     where: {
       clerkId: userId ?? '',
@@ -361,14 +381,20 @@ export const fetchCartItems = async () => {
     },
   });
   return cart[0]?.numItemsInCart || 0;
+  } catch (error) {
+    logDatabaseFallback('fetching cart count', error);
+    return 0;
+  }
 };
 
 const fetchProduct = async (productId: string) => {
-  const product = await db.product.findUnique({
-    where: {
-      id: productId,
-    },
-  });
+  let product: Product | null;
+  try {
+    product = await db.product.findUnique({ where: { id: productId } });
+  } catch (error) {
+    logDatabaseFallback('checking a cart product', error);
+    product = findFallbackProduct(productId);
+  }
 
   if (!product) {
     throw new Error('Product not found');
@@ -560,6 +586,7 @@ export const updateCartItemAction = async ({
 
 export const fetchUserOrders = async () => {
   const user = await getAuthUser();
+  try {
   const orders = await db.order.findMany({
     where: {
       clerkId: user.id,
@@ -570,11 +597,16 @@ export const fetchUserOrders = async () => {
     },
   });
   return orders;
+  } catch (error) {
+    logDatabaseFallback('fetching user orders', error);
+    return [];
+  }
 };
 
 export const fetchAdminOrders = async () => {
   const user = await getAdminUser();
 
+  try {
   const orders = await db.order.findMany({
     where: {
       isPaid: true,
@@ -584,6 +616,10 @@ export const fetchAdminOrders = async () => {
     },
   });
   return orders;
+  } catch (error) {
+    logDatabaseFallback('fetching admin orders', error);
+    return [];
+  }
 };
 
 export const createOrderAction = async (prevState: any, formData: FormData) => {
