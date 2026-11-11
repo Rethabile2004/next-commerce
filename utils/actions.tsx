@@ -65,7 +65,11 @@ const getAuthUser = async () => {
 const renderError = (error: unknown): { message: string } => {
   if (
     error instanceof Error &&
-    (/P1001|P1002|P1017|Can't reach database server|connection/i.test(error.message))
+    (
+      /P1001|P1002|P1017|Can't reach database server|connection|tenant\/user.*not found|FATAL/i.test(
+        error.message
+      )
+    )
   ) {
     return { message: offlineMessage };
   }
